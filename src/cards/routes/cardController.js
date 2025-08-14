@@ -5,6 +5,8 @@ const { getCards,getMyCards,getCard,createCard,updateCard,likeCard,deleteCard } 
 const router = express.Router();
 app.use(express.json());
 
+const handleError = require("../../utlis/errorHandler");
+
 
 
 
@@ -49,6 +51,16 @@ router.put("/:id", async (req, res) => {
         const id = req.params.id;
         const card = await updateCard(id, req.body);
         res.send(`Card Updated: ${card}`);
+    } catch (error) {
+        handleError(res, error.status || 500, error.message);
+    }
+});
+
+
+    router.post("/", async (req, res) => {
+    try {
+        const card = await createCard(req.body);
+        res.send(`Card Created: ${card}`);
     } catch (error) {
         handleError(res, error.status || 500, error.message);
     }
