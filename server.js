@@ -8,6 +8,8 @@ const cardsController = require("./src/cards/routes/cardController");
 const usersController = require("./src/users/routes/usersController");
 const cors = require("./src/middlewares/cors");
 const logger = require("./src/logger/loggerService");
+const { connect } = require("mongoose");
+const connectToDb = require("./src/DB/dbService");
 
 // Middleware - Appl Level
 app.use(cors);
@@ -39,4 +41,5 @@ errorHandler(res, err.status || 500, err.message);
 const PORT =  process.env.PORT|| 8181;
 app.listen(PORT, () => {
  console.log("INIT SERVER");
+ connectToDb()
 });
