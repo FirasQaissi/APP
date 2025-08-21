@@ -1,37 +1,27 @@
 const mongoose = require("mongoose");
+const { DEFAULT_VALIDATION } = require("../../helpers/mongooseValidators");
 
 const Address = new mongoose.Schema({
-            address: {
-            state: {
-                type: String,
-                minlength: 2
-            },
-            country: {
-                type: String,
-                required: true,
-                minlength: 2
-            },
-            city: {
-                type: String,
-                required: true,
-                minlength: 2
-            },
-            street: {
-                type: String,
-                required: true,
-                minlength: 2
-            },
-            houseNumber: {
-                type: Number,
-                required: true,
-             
-            },
-            zip: {
-                type: Number
-        
-            }
-        }
-})
+  state: {
+    type: String,
+    maxLength: 256,
+    trim: true,
+  },
+  country: DEFAULT_VALIDATION,
+  city: DEFAULT_VALIDATION,
+  street: DEFAULT_VALIDATION,
+  houseNumber: {
+    type: Number,
+    required: true,
+    trim: true,
+    minLength: 1,
+  },
+  zip: {
+    type: Number,
+    trim: true,
+    minLength: 4,
+    default: 0,
+  },
+});
 
-
-module.exports.schema = Address;
+module.exports = Address;

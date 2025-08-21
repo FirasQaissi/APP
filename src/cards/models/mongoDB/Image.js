@@ -1,19 +1,9 @@
+const mongoose = require("mongoose");
+const { URL, DEFAULT_VALIDATION } = require("../../helpers/mongooseValidators");
 
-const mongoose = require('mongoose');
+const Image = new mongoose.Schema({
+  url: URL,
+  alt: DEFAULT_VALIDATION,
+});
 
-
-const ImageSc = new mongoose.schema(  {
-     image: {
-            url: {
-                type: String,
-                match: /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w- ./?%&=]*)?$/,
-            },
-            alt: {
-                type: String,
-                minlength: 2
-            }
-}
-})
-
-
-module.exports.schema = ImageSc;
+module.exports = Image;

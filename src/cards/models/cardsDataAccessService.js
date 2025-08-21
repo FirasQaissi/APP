@@ -1,90 +1,110 @@
-const db = process.env.DB || "Database";
+const { handleBadRequest } = require("../../utlis/handleErrors");
+const Card = require("../models/mongodb/Card");
 
-exports.find = async () => {
-    if (db === "Database") {
-        try {
-            return Promise.resolve([{id:"1234",name:"card title",data:"7-day free trial"}]);
-        } catch (error) {
-            error.status = 404;
-            return Promise.reject(error);
-        }
-    }
-    return Promise.resolve("Not found From DB");
-}
+const db = process.env.db || "MONGODB";
 
-exports.findMyCards= async (userId) => {
 
-    if (db === "Database") {
-        try {
-            return Promise.resolve(` My Cards: ${userId} `);
-        } catch (error) {
-            error.status = 404;
-            return Promise.reject(error);
-        }
-    }
-    return Promise.resolve("Not found From DB");
-}
+const find = async () => {
+  try {
+    // אם המקור הוא MONGODB
+    if (db === "MONGODB") {
+      // שליפת כל הכרטיסים ממונגו
+      const cards = await Card.find();
 
-exports.findOne = async (cardId) => {
-    if (db === "Database") {
-        try {
-            return Promise.resolve(`Card No: ${cardId}`);
-        } catch (error) {
-            error.status = 404;
-            return Promise.reject(error);
-        }
-    }
-    return Promise.resolve("Not found From DB");
-}
+      // אם אין כרטיסים - זרוק שגיאה עם סטטוס 404
+      if (!cards || cards.length === 0) {
+        const error = {
+          message: "No cards found",
+          status: 404,
+        };
+        return handleBadRequest(error);
+      }
 
-exports.create = async ([{ noramlizedCard }]) => {
-    noramlizedCard._id = Date.now();
-    if (db === "Database") {
-        try {
-            return Promise.resolve(`Card Created: ${noramlizedCard}`);
-        } catch (error) {
-            error.status = 404;
-            return Promise.reject(error);
-        }
-    }
-    return Promise.resolve("Not found From DB");
-}
-
-exports.update = async (cardId="00", noramlizedCard=[{cardNo:"123",detials:"AA"}]) => {
-
-if (db === "Database") {
-        try {
-            return Promise.resolve(`Card Updated: ${noramlizedCard.cardNo} with ID: ${cardId}`);
-        } catch (error) {
-            error.status = 404;
-            return Promise.reject(error);
-        }
+      // אם הכל בסדר, החזר את הכרטיסים
+      return Promise.resolve(cards);
     }
 
-}
+    // אם db לא שווה ל-MONGODB
+    return Promise.resolve("value only - no DB connected");
+  } catch (error) {
+    // תפיסת שגיאה והפעלה של handleBadRequest
+    return handleBadRequest(error);
+  }
+};
 
-exports.like = async (cardId="00", userId="00") => {
 
-  if (db === "Database"){
+const findMyCards = async (userId) => {
+  if (db === "MONGODB") {
     try {
-        return promise.resolve(cardNo,cardId + "Liked")
+      return Promise.resolve(`my cards: ${userId}`);
     } catch (error) {
-        error.status=404;
-        return promise.reject(error)
+      error.status = 404;
+      return Promise.reject(error);
     }
   }
+  return Promise.resolve("get card not in database");
+};
 
+const findOne = async (cardId) => {
+  if (db === "MONGODB") {
+    try {
+      return Promise.resolve(`in findOne card no: ${cardId}`);
+    } catch (error) {
+      error.status = 404;
+      return Promise.reject(error);
+    }
+  }
+  return Promise.resolve("get card not in database");
+};
 
-}
+const create = async (normalizedCard) => {
+  if (db === "MONGODB") {
+    try {
+      let card = new Card(normalizedCard);
+      card = await card.save();
+      return Promise.resolve(card);
+    } catch (error) {
+      error.status = 400;
+      return Promise.reject(error);
+    }
+  }
+  return Promise.resolve("create card not in database");
+};
 
-exports.remove = async (cardId="00") => {
-    if (db === "Database") {
-            try {
-                return Promise.resolve(` ${cardNo, "" , cardId} Card Removed:` );
-            } catch (error) {
-                error.status = 404;
-                return Promise.reject(error);
-            }
-        }
-        return Promise.resolve("Not found From DB");
-}
+const update = async (cardId, normalizedCard) => {
+  if (db === "MONGODB") {
+    try {
+      return Promise.resolve(`in update card no. ${cardId}`);
+    } catch (error) {
+      error.status = 400;
+      return Promise.reject(error);
+    }
+  }
+  return Promise.resolve("card update not in database");
+};
+
+const like = async (cardId, userId) => {
+  if (db === "MONGODB") {
+    try {
+      return Promise.resolve(`card no. ${cardId} liked!`);
+    } catch (error) {
+      error.status = 400;
+      return Promise.reject(error);
+    }
+  }
+  return Promise.resolve("card liked not in database");
+};
+
+const remove = async (cardId) => {
+  if (db === "MONGODB") {
+    try {
+      return Promise.resolve(`card no. ${cardId} deleted!`);
+    } catch (error) {
+      error.status = 400;
+      return Promise.reject(error);
+    }
+  }
+  return Promise.resolve("card deleted not in database");
+};
+
+module.exports = { find, findMyCards, findOne, create, update, like, remove };
