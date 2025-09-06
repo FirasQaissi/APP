@@ -1,45 +1,33 @@
 
 const express = require("express");
-const router = require("./src/cards/routes/cardController");
 const app = express();
-const errorHandler = require("./src/utlis/errorHandler");
+const router = require("./router/router");
+const cors = require("./middlewares/cors");
+const  {handleError}  = require("./utils/errorHandler");
+const logger = require("./logger/loggerService");
 const chalk = require("chalk");
-const cardsController = require("./src/cards/routes/cardController");
-const usersController = require("./src/users/routes/usersController");
-const cors = require("./src/middlewares/cors");
-const logger = require("./src/logger/loggerService");
-const { connect } = require("mongoose");
-const connectToDb = require("./src/DB/dbService");
+const connectToDb = require("./DB/dbService");
+//const { connect } = require("mongoose");
+const config = require("config");
+const {generateInitialCards, generateInitialUsers} = require("./initialData/initialDataService");
 
-// Middleware - Appl Level
+// Middleware - App Level
 app.use(cors);
 app.use(logger)
 app.use(express.json());
 app.use(express.text());
 app.use(express.static("./public"));
-app.use("/cards", cardsController);
-app.use("/users", usersController);
 app.use(router);
-
-
-app.get('/', (req , res) => {
-    res.send("Hello From Server");  
-})
-
-
-//const PORT = 3000;
-//app.listen(PORT, () => {
-//  console.log(chalk.green(`Server is running on http://localhost:${PORT}`));
-//});
 
 // Error Handler Middleware
 app.use((err, req, res, next) => {
-errorHandler(res, err.status || 500, err.message);
+  handleError(res, err.status || 500, err.message);
 });
 
-// http://localhost:8181
-const PORT =  process.env.PORT|| 8181;
+
+const PORT =  config.get("PORT");
 app.listen(PORT, () => {
- console.log("INIT SERVER");
+ console.log(`INIT SERVER ON : LOCALHOST :${PORT}`);
  connectToDb()
+
 });
