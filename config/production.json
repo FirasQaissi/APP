@@ -5,6 +5,6 @@
     "DB_NAME":"qaissi0003",
     "DB_PASSWORD":"TY30OmQrbAOaR86U",
     "LOGGER":"morgan",
-    "DB":"MONOGODB"
+    "DB":"MONGODB"
     
 }

@@ -62,21 +62,28 @@ router.post("/login", async (req, res) => {
   }
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/:id",auth, async (req, res) => {
   try {
     const { id } = req.params;
-    const user = await updateUser(id, req.body);
+     if (!req.user.isAdmin && req.user._id !== id) {
+      return handleError(res, 403, "You can update only your own profile!");}
+   const user = await updateUser(id, req.body);
     return res.send(user);
   } catch (error) {
     return handleError(res, error.status || 500, error.message);
   }
 });
 
-router.patch("/:id", (req, res) => {
-  const id = req.params.id;
-  console.log(chalk.blue(`Patch from Users with id: ${id}`));
-  res.send(`Patch from Users with id: ${id}`);
-});
+router.patch("/:id",async (req, res) => {
+  try {
+    const {id } = req.params;
+    console.log("BODY RECEIVED:", req.body); 
+    const updatedUser = await updateUser(id,req.body);
+    return res.send(updatedUser);
+  } catch (error) {
+    return handleError(res, error.status || 500, error.message);
+  }
+})
 
 router.delete("/:id", async (req, res) => {
   try {

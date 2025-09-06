@@ -5,6 +5,7 @@ const { handleBadRequest } = require("../../utils/errorHandler");
 const { comparePassword } = require("../helpers/bcrypt");
 const { generateAuthToken } = require("../../auth/Providers/jwt");
 
+
 const createUser = async (normalizedUser) => {
   if (DB === "MONGODB") {
     try {
@@ -76,16 +77,35 @@ const findUser = async (userId) => {
 };
 
 const update = async (userId, normalizedUser) => {
+
+
   if (DB === "MONGODB") {
     try {
-      return Promise.resolve({ normalizedUser, userId });
+      console.log("normalizedUser:", normalizedUser);
+      const updated  = await User.findByIdAndUpdate(
+          userId,
+        { $set: normalizedUser },
+        {
+          new: true,
+          runValidators: true,
+          projection: { password: 0, __v: 0 },
+        }
+      );
+       if (!updated) {
+        const error = new Error("User not found");
+        error.status = 404;
+        throw error;
+      }
+
+      return updated;
     } catch (error) {
-      error.status = 400;
+      error.status = error.status || 400;
       return Promise.reject(error);
     }
   }
-  return Promise.resolve("card update not in mongodb");
+  return Promise.resolve("user update not in mongodb");
 };
+
 
 const changeUserBusinessStatus = async (userId) => {
   if (DB === "MONGODB") {
@@ -102,10 +122,15 @@ const changeUserBusinessStatus = async (userId) => {
 const removeUser = async (userId) => {
   if (DB === "MONGODB") {
     try {
-      return Promise.resolve(`user no. ${userId} deleted!`);
+    const user = await  User.findByIdAndDelete(userId);
+    return Promise.resolve(`User ${user.name.first,": ", user.name.last} , ${user.email} Deleted Successfully`);
+    if(!user) throw new Error("Could not find or delete this user in the database");
+    error.status = 404;
+    throw error;
     } catch (error) {
-      error.status = 400;
+      error.status = error.status ||400;
       return Promise.reject(error);
+    
     }
   }
   return Promise.resolve("card deleted not in mongodb");
